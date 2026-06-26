@@ -228,17 +228,25 @@ const scrollToSection = (e, id) => {
           </div>
         </FadeInSection>
       </section>
-
-      {/* SECCIÓN 3: GALERÍA DE IMÁGENES */}
+{/* SECCIÓN 3: GALERÍA DE IMÁGENES */}
       <section className="py-12 bg-[#A8BBC9] overflow-hidden">
         <FadeInSection>
           <div 
             ref={carouselRef}
             onMouseEnter={() => setIsHovering(true)}
             onMouseLeave={() => setIsHovering(false)}
-            onTouchStart={() => setIsHovering(true)} // Detiene auto-scroll al tocar el cel
-            onTouchEnd={() => setIsHovering(false)}  // Lo reanuda al soltar
-            className="w-full flex gap-6 overflow-x-auto px-6 pb-4 pt-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+            onTouchStart={() => {
+              setIsHovering(true);
+              // Limpiamos cualquier temporizador previo para que no se amontonen
+              if (window.touchTimeout) clearTimeout(window.touchTimeout);
+            }}
+            onTouchEnd={() => {
+              // Le damos 2 segundos libres para que el carrusel "resbale" con inercia nativa
+              window.touchTimeout = setTimeout(() => {
+                setIsHovering(false);
+              }, 2000);
+            }}
+            className="w-full flex gap-6 overflow-x-auto px-6 pb-4 pt-4 [webkit-overflow-scrolling:touch] select-none [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
           >
             {[...imagenesDepartamento, ...imagenesDepartamento].map((url, idx) => (
               <div 
@@ -249,7 +257,8 @@ const scrollToSection = (e, id) => {
                 <img 
                   src={url} 
                   alt={`Vista del departamento ${(idx % imagenesDepartamento.length) + 1}`} 
-                  className="w-full h-full object-cover rounded-[20px]"
+                  className="w-full h-full object-cover rounded-[20px] pointer-events-none"
+                  draggable="false"
                 />
               </div>
             ))}
