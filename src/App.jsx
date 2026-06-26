@@ -1,51 +1,5 @@
-import React, { useRef, useState, useEffect } from 'react';
-
 // =======================================================================
-// COMPONENTE DE ANIMACIÓN (Aparición lenta)
-// =======================================================================
-// =======================================================================
-// COMPONENTE DE ANIMACIÓN (Aparición rápida y optimizada para móvil)
-// =======================================================================
-const FadeInSection = ({ children, delay = 0 }) => {
-  const [isVisible, setVisible] = useState(false);
-  const domRef = useRef();
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setVisible(true);
-            observer.unobserve(entry.target);
-          }
-        });
-      },
-      { threshold: 0.05 } // Detecta la sección casi de inmediato
-    );
-
-    const currentRef = domRef.current;
-    if (currentRef) observer.observe(currentRef);
-
-    return () => {
-      if (currentRef) observer.unobserve(currentRef);
-    };
-  }, []);
-
-  return (
-    <div
-      ref={domRef}
-      className={`transition-all duration-700 ease-out will-change-[opacity,transform] ${
-        isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
-      }`}
-      style={{ transitionDelay: `${delay}ms` }}
-    >
-      {children}
-    </div>
-  );
-};
-
-// =======================================================================
-// APLICACIÓN PRINCIPAL
+// APLICACIÓN PRINCIPAL (LÓGICA Y PRIMERAS SECCIONES OPTIMIZADAS)
 // =======================================================================
 function App() {
   const imagenesDepartamento = [
@@ -62,24 +16,27 @@ function App() {
   const [isHovering, setIsHovering] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const carouselRef = useRef(null);
-  const scrollAccumulator = useRef(0);
 
-  // Auto-scroll del carrusel con efecto infinito
+  // NUEVO AUTO-SCROLL OPTIMIZADO: Eliminación total de tirones en móvil usando Delta Time
   useEffect(() => {
     const carousel = carouselRef.current;
     let animationFrameId;
+    let lastTime = performance.now();
 
-    const autoScroll = () => {
+    const autoScroll = (currentTime) => {
       if (carousel && !isHovering) {
-        scrollAccumulator.current += 0.3; 
-        if (scrollAccumulator.current >= 1) {
-          carousel.scrollLeft += Math.floor(scrollAccumulator.current);
-          scrollAccumulator.current -= Math.floor(scrollAccumulator.current);
-        }
+        // Calculamos el tiempo real exacto transcurrido entre este fotograma y el anterior
+        const deltaTime = currentTime - lastTime;
+        
+        // Desplazamiento constante: 0.03 píxeles por cada milisegundo real
+        carousel.scrollLeft += 0.03 * deltaTime;
+
+        // Reinicio del bucle infinito continuo
         if (carousel.scrollLeft >= carousel.scrollWidth / 2) {
           carousel.scrollLeft = 0;
         }
       }
+      lastTime = currentTime;
       animationFrameId = requestAnimationFrame(autoScroll);
     };
 
@@ -87,7 +44,7 @@ function App() {
     return () => cancelAnimationFrame(animationFrameId);
   }, [isHovering]);
 
-  // Rueda del ratón para el carrusel
+  // Soporte para rueda del ratón en computadoras
   useEffect(() => {
     const carousel = carouselRef.current;
     const handleNativeWheel = (e) => {
@@ -122,7 +79,8 @@ function App() {
       index: (prev.index + 1) % imagenesDepartamento.length
     }));
   };
-const scrollToSection = (e, id) => {
+
+  const scrollToSection = (e, id) => {
     e.preventDefault(); 
     const element = document.getElementById(id);
     if (element) {
@@ -131,10 +89,11 @@ const scrollToSection = (e, id) => {
     }
     setIsMenuOpen(false); 
   };
+
   return (
     <div className="min-h-screen text-stone-700 font-sans font-light tracking-wide bg-[#E0D8CC]">
       
-{/* NAVEGACIÓN SUPERIOR CON MENÚ HAMBURGUESA */}
+      {/* NAVEGACIÓN SUPERIOR CON MENÚ HAMBURGUESA */}
       <nav className="fixed w-full bg-[#E0D8CC]/95 backdrop-blur-md shadow-sm z-40 border-b border-stone-300/40 transition-all duration-500">
         <div className="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center relative">
           
@@ -142,7 +101,6 @@ const scrollToSection = (e, id) => {
             Departamento 3
           </h1>
           
-          {/* Menú de Escritorio (Oculto en celular) */}
           <div className="hidden lg:flex space-x-5 text-sm font-medium text-[#4A6B7C]">
             <a href="#informacion" onClick={(e) => scrollToSection(e, 'informacion')} className="hover:text-[#2D4350] transition-colors">Info</a>
             <a href="#ubicacion" onClick={(e) => scrollToSection(e, 'ubicacion')} className="hover:text-[#2D4350] transition-colors">Ubicación</a>
@@ -154,7 +112,6 @@ const scrollToSection = (e, id) => {
             <a href="#transporte" onClick={(e) => scrollToSection(e, 'transporte')} className="hover:text-[#2D4350] transition-colors">Transporte</a>
           </div>
 
-          {/* Botón de Hamburguesa para Celular */}
           <button 
             className="lg:hidden text-[#2D4350] focus:outline-none p-1 transform transition-transform duration-300 active:scale-90"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -169,13 +126,11 @@ const scrollToSection = (e, id) => {
           </button>
         </div>
 
-        {/* Menú Desplegable (Celular) ANIMADO */}
         <div 
           className={`lg:hidden absolute top-full left-0 w-full bg-[#F4F1EA] shadow-xl overflow-hidden transition-all duration-300 ease-in-out ${
             isMenuOpen ? 'max-h-[500px] border-b border-stone-300 opacity-100' : 'max-h-0 opacity-0 pointer-events-none'
           }`}
         >
-          {/* Usamos divide-y para las líneas divisorias */}
           <div className="flex flex-col px-6 divide-y divide-stone-300/60 text-sm font-bold text-[#4A6B7C]">
             <a href="#informacion" onClick={(e) => scrollToSection(e, 'informacion')} className="py-4 hover:text-[#2D4350] transition-colors">Info del Depa</a>
             <a href="#ubicacion" onClick={(e) => scrollToSection(e, 'ubicacion')} className="py-4 hover:text-[#2D4350] transition-colors">Ubicación</a>
@@ -228,7 +183,8 @@ const scrollToSection = (e, id) => {
           </div>
         </FadeInSection>
       </section>
-{/* SECCIÓN 3: GALERÍA DE IMÁGENES */}
+
+      {/* SECCIÓN 3: GALERÍA DE IMÁGENES OPTIMIZADA */}
       <section className="py-12 bg-[#A8BBC9] overflow-hidden">
         <FadeInSection>
           <div 
@@ -237,11 +193,9 @@ const scrollToSection = (e, id) => {
             onMouseLeave={() => setIsHovering(false)}
             onTouchStart={() => {
               setIsHovering(true);
-              // Limpiamos cualquier temporizador previo para que no se amontonen
               if (window.touchTimeout) clearTimeout(window.touchTimeout);
             }}
             onTouchEnd={() => {
-              // Le damos 2 segundos libres para que el carrusel "resbale" con inercia nativa
               window.touchTimeout = setTimeout(() => {
                 setIsHovering(false);
               }, 2000);
@@ -265,7 +219,6 @@ const scrollToSection = (e, id) => {
           </div>
         </FadeInSection>
       </section>
-
       {/* SECCIÓN 4: UBICACIÓN */}
       <section id="ubicacion" className="py-16 px-6 bg-[#E0D8CC]">
         <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
