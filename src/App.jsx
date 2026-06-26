@@ -673,7 +673,7 @@ const scrollToSection = (e, id) => {
         </div>
       </section>
 
-     {/* SECCIÓN 12: TRANSPORTE */}
+ {/* SECCIÓN 12: TRANSPORTE */}
       <section id="transporte" className="py-16 px-6 bg-[#E0D8CC]">
         <div className="max-w-3xl mx-auto bg-[#F4F1EA] p-8 md:p-12 rounded-3xl shadow-sm border border-stone-200/30 transform transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl">
           <FadeInSection>
@@ -687,14 +687,16 @@ const scrollToSection = (e, id) => {
             </p>
             
             <div className="w-full flex justify-center mt-6">
-              {/* Cambiamos object-cover por object-contain y agregamos p-4 y fondo blanco */}
-<div className="w-full flex justify-center mt-6">
               <img 
                 src="/img/TRANSPORTE.jpg" 
                 alt="Transporte en Campeche" 
-                className="w-full max-w-lg h-48 md:h-64 object-contain bg-[#F4F1EA] rounded-2xl border border-[#4A6B7C]/20 shadow-sm mt-6" 
+                className="w-full max-w-lg h-48 md:h-64 object-contain bg-[#F4F1EA] rounded-2xl border border-[#4A6B7C]/20 shadow-sm" 
               />
             </div>
+          </FadeInSection>
+        </div>
+      </section>
+
       {/* PIE DE PÁGINA (CONTACTO) */}
       <footer id="contacto" className="bg-[#2D4350] text-[#F4F1EA] text-center py-12">
         <FadeInSection>
