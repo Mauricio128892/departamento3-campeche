@@ -3,6 +3,9 @@ import React, { useRef, useState, useEffect } from 'react';
 // =======================================================================
 // COMPONENTE DE ANIMACIÓN (Aparición lenta)
 // =======================================================================
+// =======================================================================
+// COMPONENTE DE ANIMACIÓN (Aparición rápida y optimizada para móvil)
+// =======================================================================
 const FadeInSection = ({ children, delay = 0 }) => {
   const [isVisible, setVisible] = useState(false);
   const domRef = useRef();
@@ -17,7 +20,7 @@ const FadeInSection = ({ children, delay = 0 }) => {
           }
         });
       },
-      { threshold: 0.15 }
+      { threshold: 0.05 } // Detecta la sección casi de inmediato
     );
 
     const currentRef = domRef.current;
@@ -31,15 +34,14 @@ const FadeInSection = ({ children, delay = 0 }) => {
   return (
     <div
       ref={domRef}
-      className={`transition-all duration-[1200ms] ease-out ${
-        isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'
+      className={`transition-all duration-700 ease-out will-change-[opacity,transform] ${
+        isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
       }`}
       style={{ transitionDelay: `${delay}ms` }}
     >
       {children}
     </div>
   );
-  
 };
 
 // =======================================================================
@@ -234,6 +236,8 @@ const scrollToSection = (e, id) => {
             ref={carouselRef}
             onMouseEnter={() => setIsHovering(true)}
             onMouseLeave={() => setIsHovering(false)}
+            onTouchStart={() => setIsHovering(true)} // Detiene auto-scroll al tocar el cel
+            onTouchEnd={() => setIsHovering(false)}  // Lo reanuda al soltar
             className="w-full flex gap-6 overflow-x-auto px-6 pb-4 pt-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
           >
             {[...imagenesDepartamento, ...imagenesDepartamento].map((url, idx) => (
@@ -638,7 +642,7 @@ const scrollToSection = (e, id) => {
           </FadeInSection>
         </div>
       </section>
-      
+
       {/* SECCIÓN 11: LUGARES PARA VISITAR */}
       <section className="py-16 px-6 bg-[#A8BBC9]">
         <div className="max-w-5xl mx-auto">
@@ -684,16 +688,13 @@ const scrollToSection = (e, id) => {
             
             <div className="w-full flex justify-center mt-6">
               {/* Cambiamos object-cover por object-contain y agregamos p-4 y fondo blanco */}
-<img 
-  src="/img/TRANSPORTE.jpg" 
-  alt="Transporte en Campeche" 
-  className="w-full max-w-lg h-48 md:h-64 object-cover rounded-2xl border border-[#4A6B7C]/20 shadow-sm mt-6" 
-/>
+<div className="w-full flex justify-center mt-6">
+              <img 
+                src="/img/TRANSPORTE.jpg" 
+                alt="Transporte en Campeche" 
+                className="w-full max-w-lg h-48 md:h-64 object-contain bg-[#F4F1EA] rounded-2xl border border-[#4A6B7C]/20 shadow-sm mt-6" 
+              />
             </div>
-          </FadeInSection>
-        </div>
-      </section>
-
       {/* PIE DE PÁGINA (CONTACTO) */}
       <footer id="contacto" className="bg-[#2D4350] text-[#F4F1EA] text-center py-12">
         <FadeInSection>
