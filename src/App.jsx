@@ -17,7 +17,7 @@ const FadeInSection = ({ children, delay = 0 }) => {
           }
         });
       },
-      { threshold: 0.05 } // Detecta la sección casi de inmediato
+      { threshold: 0.05 }
     );
 
     const currentRef = domRef.current;
@@ -58,51 +58,31 @@ function App() {
   const [lightbox, setLightbox] = useState({ isOpen: false, index: 0 });
   const [isHovering, setIsHovering] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  
   const carouselRef = useRef(null);
-  const exactScroll = useRef(0); // Memoria virtual para evitar el lag de sub-píxeles
-  const lastTimeRef = useRef(0);
 
-  // Auto-scroll del carrusel ESTABILIZADO
+  // =======================================================================
+  // AUTO-SCROLL PERFECTO: 1 píxel entero por fotograma (Adiós a los ladrillos)
+  // =======================================================================
   useEffect(() => {
     const carousel = carouselRef.current;
     let animationFrameId;
 
-    const autoScroll = (currentTime) => {
-      if (!lastTimeRef.current) lastTimeRef.current = currentTime;
-      let deltaTime = currentTime - lastTimeRef.current;
-      
-      // Filtro anti-lag: Si el celular se traba y el delta es muy alto, lo limitamos
-      if (deltaTime > 50) deltaTime = 16; 
-      
-      lastTimeRef.current = currentTime;
-
+    const autoScroll = () => {
       if (carousel && !isHovering) {
-        // Acumulamos el movimiento suavemente
-        exactScroll.current += 0.04 * deltaTime;
+        // Al sumar exactamente "1", forzamos un movimiento constante sin
+        // que el navegador del celular intente redondear decimales.
+        carousel.scrollLeft += 1; 
 
-        // Reinicio del bucle
-        if (exactScroll.current >= carousel.scrollWidth / 2) {
-          exactScroll.current = 0;
+        if (carousel.scrollLeft >= carousel.scrollWidth / 2) {
+          carousel.scrollLeft = 0;
         }
-
-        // Aplicamos el movimiento
-        carousel.scrollLeft = exactScroll.current;
       }
-      
       animationFrameId = requestAnimationFrame(autoScroll);
     };
 
     animationFrameId = requestAnimationFrame(autoScroll);
     return () => cancelAnimationFrame(animationFrameId);
   }, [isHovering]);
-
-  // Sincronización manual: Le dice a la IA dónde dejaste la foto al deslizarla con el dedo
-  const handleManualScroll = () => {
-    if (carouselRef.current && isHovering) {
-      exactScroll.current = carouselRef.current.scrollLeft;
-    }
-  };
 
   // Rueda del ratón para el carrusel en PC
   useEffect(() => {
@@ -111,7 +91,6 @@ function App() {
       if (carousel) {
         e.preventDefault(); 
         carousel.scrollLeft += e.deltaY;
-        exactScroll.current = carousel.scrollLeft; // Sincronizamos
       }
     };
     if (carousel) {
@@ -253,7 +232,6 @@ function App() {
         <FadeInSection>
           <div 
             ref={carouselRef}
-            onScroll={handleManualScroll}
             onMouseEnter={() => setIsHovering(true)}
             onMouseLeave={() => setIsHovering(false)}
             onTouchStart={() => {
@@ -263,7 +241,6 @@ function App() {
             onTouchEnd={() => {
               window.touchTimeout = setTimeout(() => {
                 setIsHovering(false);
-                lastTimeRef.current = performance.now(); // Reinicia el reloj para evitar brincos
               }, 2000);
             }}
             className="w-full flex gap-6 overflow-x-auto px-6 pb-4 pt-4 [webkit-overflow-scrolling:touch] select-none [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
