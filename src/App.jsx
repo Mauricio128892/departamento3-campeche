@@ -195,7 +195,7 @@ function App() {
               ¡Bienvenido a tu hogar en Campeche!
             </h2>
             <p className="text-lg text-stone-700 max-w-2xl mx-auto">
-              Nos alegra mucho recibirte. Hemos preparado este espacio con mucho cariño para que disfrutes al máximo tu visita y te sientas como en casa.
+              Nos alegra mucho recibirte. Hemos preparado este espacio con mucho empeño para que disfrutes al máximo tu visita y te sientas como en casa.
             </p>
           </div>
         </FadeInSection>
